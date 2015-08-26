@@ -94,3 +94,17 @@ func (v Version) String() string {
 
 	return fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch)
 }
+
+type Versions []Version
+
+func (l Versions) Len() int {
+	return len(l)
+}
+
+func (l Versions) Less(i, j int) bool {
+	return l[i].ord() < l[j].ord()
+}
+
+func (l Versions) Swap(i, j int) {
+	l[j], l[i] = l[i], l[j]
+}
