@@ -87,6 +87,18 @@ func (v Version) Compare(o Version) int {
 	return 0
 }
 
+func (v Version) Less(o Version) bool {
+	return v.Compare(o) == -1
+}
+
+func (v Version) Equals(o Version) bool {
+	return v.Compare(o) == 0
+}
+
+func (v Version) Greater(o Version) bool {
+	return v.Compare(o) == 1
+}
+
 func (v Version) String() string {
 	if v.Build > 0 {
 		return fmt.Sprintf("%d.%d.%d.%d", v.Major, v.Minor, v.Patch, v.Build)
