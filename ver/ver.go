@@ -1,6 +1,7 @@
 package ver
 
 import (
+	"database/sql/driver"
 	"errors"
 	"fmt"
 	"strconv"
@@ -119,4 +120,25 @@ func (l Versions) Less(i, j int) bool {
 
 func (l Versions) Swap(i, j int) {
 	l[j], l[i] = l[i], l[j]
+}
+
+func (v Version) Value() (driver.Value, error) {
+	return int64(v.ord()), nil
+}
+
+func (v *Version) Scan(src interface{}) error {
+	if integer, ok := src.(int64); ok {
+		if integer < 0 {
+			return errors.New("value must be positive")
+		}
+
+		converted := int(integer)
+		v.Major = converted / 1000000000
+		v.Minor = (converted % 1000000000) / 1000000
+		v.Patch = ((converted % 1000000000) % 1000000) / 1000
+		v.Build = ((converted % 1000000000) % 1000000) % 1000
+		return nil
+	}
+
+	return errors.New("invalid type")
 }

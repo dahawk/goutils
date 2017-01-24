@@ -1,6 +1,9 @@
 package ver
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestParse(t *testing.T) {
 	table := map[string]Version{
@@ -87,5 +90,76 @@ func TestCompare(t *testing.T) {
 
 	if x := b.Compare(b); x != 0 {
 		t.Errorf("expected %v = %v, got %d", b, b, x)
+	}
+}
+
+func TestValue(t *testing.T) {
+	table := map[Version]int64{
+		Version{8, 5, 1, 0}:    8005001000,
+		Version{4, 7, 0, 0}:    4007000000,
+		Version{0, 23, 0, 0}:   23000000,
+		Version{14, 0, 0, 100}: 14000000100,
+		Version{0, 0, 0, 0}:    0,
+		Version{0, 0, 1, 1}:    1001,
+		Version{0, 1, 0, 0}:    1000000,
+		Version{1, 0, 0, 0}:    1000000000,
+	}
+
+	for input, expected := range table {
+		got, err := input.Value()
+
+		if err != nil {
+			t.Errorf("failed to retrieve value from %#v: %v", input, err)
+		}
+
+		if expected != got {
+			t.Errorf("failed to retrieve value %#v: expected %d, got %d", input, expected, got)
+		}
+	}
+}
+
+func TestScan(t *testing.T) {
+	table := map[int64]string{
+		8005001000:     "8.5.1",
+		4007000000:     "4.7.0",
+		23000000:       "0.23.0",
+		14000000100:    "14.0.0.100",
+		0:              "0.0.0",
+		1001:           "0.0.1.1",
+		1000000:        "0.1.0",
+		1000000000:     "1.0.0",
+		14000000000100: "14000.0.0.100",
+	}
+
+	var version Version
+	for input, expected := range table {
+		err := version.Scan(input)
+
+		if err != nil {
+			t.Errorf("failed to scan %d: %v", input, err)
+		}
+
+		got := version.String()
+		if expected != got {
+			t.Errorf("failed to scan %d: expected %q, got %q", input, expected, got)
+		}
+	}
+}
+
+func TestScanErrors(t *testing.T) {
+	table := []interface{}{
+		"3.15.6",
+		8005001000.1514,
+		-1,
+		nil,
+		time.Now(),
+	}
+
+	var version Version
+	for _, input := range table {
+		err := version.Scan(input)
+		if err == nil {
+			t.Errorf("scan succeeded but should not: %#v -> %q", input, version)
+		}
 	}
 }
