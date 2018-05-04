@@ -55,7 +55,12 @@ func Parse(input string) (Version, error) {
 		fallthrough
 
 	case len(parts) > 0:
-		major, err := strconv.Atoi(parts[0])
+		txt := parts[0]
+		if strings.HasPrefix(txt, "v") {
+			txt = txt[1:]
+		}
+		major, err := strconv.Atoi(txt)
+
 		if err != nil {
 			return Version{}, fmt.Errorf("invalid major number: %q", parts[0])
 		}

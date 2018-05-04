@@ -15,6 +15,7 @@ func TestParse(t *testing.T) {
 		"0.0.0.1": Version{0, 0, 0, 1},
 		"1.3.3.7": Version{1, 3, 3, 7},
 		"1.203":   Version{1, 203, 0, 0},
+		"v0.0.0":  Version{0, 0, 0, 0},
 	}
 
 	for input, expected := range table {
